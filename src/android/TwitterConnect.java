@@ -120,23 +120,28 @@ public class TwitterConnect extends CordovaPlugin {
 		cordova.getThreadPool().execute(new Runnable() {
 			@Override
 			public void run() {
-				UserServiceApi twitterApiClient = new UserServiceApi(Twitter.getSessionManager().getActiveSession());
-				UserService userService = twitterApiClient.getCustomService();
-				userService.show(Twitter.getSessionManager().getActiveSession().getUserId(), new Callback<Response>() {
-					@Override
-					public void success(Result<Response> result) {
-						try {
-							callbackContext.success(new JSONObject(new String(((TypedByteArray) result.response.getBody()).getBytes())));
-						} catch (JSONException e) {
-							e.printStackTrace();
+				TwitterSession session = Twitter.getSessionManager().getActiveSession();
+				if (session == null){
+					callbackContext.error("Session null");
+				}else{
+					UserServiceApi twitterApiClient = new UserServiceApi(session);
+					UserService userService = twitterApiClient.getCustomService();
+					userService.show(Twitter.getSessionManager().getActiveSession().getUserId(), new Callback<Response>() {
+						@Override
+						public void success(Result<Response> result) {
+							try {
+								callbackContext.success(new JSONObject(new String(((TypedByteArray) result.response.getBody()).getBytes())));
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-					@Override
-					public void failure(TwitterException exception) {
-						Log.v(LOG_TAG, "Twitter API Failed "+exception.getLocalizedMessage());
-						callbackContext.error(exception.getLocalizedMessage());
-					}
-				});
+						@Override
+						public void failure(TwitterException exception) {
+							Log.v(LOG_TAG, "Twitter API Failed "+exception.getLocalizedMessage());
+							callbackContext.error(exception.getLocalizedMessage());
+						}
+					});
+				}
 			}
 		});
 	}
