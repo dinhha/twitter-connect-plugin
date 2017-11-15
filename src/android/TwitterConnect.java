@@ -18,6 +18,9 @@ import android.content.Intent;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+
 import io.fabric.sdk.android.Fabric;
 import retrofit.client.Response;
 import retrofit.http.GET;
@@ -29,9 +32,9 @@ public class TwitterConnect extends CordovaPlugin {
 	private static final String LOG_TAG = "Twitter Connect";
 	private String action;
 
-	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-		super.initialize(cordova, webView);
-		Fabric.with(cordova.getActivity().getApplicationContext(), new Twitter(new TwitterAuthConfig(getTwitterKey(), getTwitterSecret())));
+	@Override
+	protected void pluginInitialize() {
+		Fabric.with(cordova.getActivity().getApplicationContext(), new Crashlytics(), new Answers(), new Twitter(new TwitterAuthConfig(getTwitterKey(), getTwitterSecret())));
 		Log.v(LOG_TAG, "Initialize TwitterConnect");
 	}
 
